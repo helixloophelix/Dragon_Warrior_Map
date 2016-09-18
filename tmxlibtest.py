@@ -67,12 +67,10 @@ print(len(alefgard_array_list))
 # print(type(alefgard_map))
 # alefgard_array_list = alefgard_subarrays.tolist()
 
-#Initialize the array that will hold the identified map elements and the array indices that go with it
-
-map_array = np.zeros((128, 128))
-map_pointer_x = 0
-map_pointer_y = 0
-
+#Generate the map in list form and then cast it to an array
+#The better way to do this is to use numpy's fromiter() method (np.fromiter() )
+#But this is best used with an actual method, so I'll try it when I clean this script up
+map_list = []
 for map_tile in alefgard_array_list:
     # print(map_tile)
     # cv2.imshow("Map Tile", map_tile)
@@ -82,8 +80,11 @@ for map_tile in alefgard_array_list:
         if np.array_equal(map_tile, current_tile):
             print(type(tile_number))
             print("Tile number is %i") % tile_number
+            map_list.append(tile_number)
             
-# print(tileset_number_to_tile_pixels.keys())
+
+
+
 
 
             # map_pointer_x += 1
@@ -97,6 +98,7 @@ for map_tile in alefgard_array_list:
             #     map_tile_value = tile_number
             #     map_array([map_pointer_x, map_pointer_y]) = map_tile_value
 
+map_array = np.array(map_list)
 print(map_array)
 
 
