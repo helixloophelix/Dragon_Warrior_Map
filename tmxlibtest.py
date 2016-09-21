@@ -13,13 +13,23 @@ dwtiles = tmxlib.tileset.ImageTileset("dragonwarriortiles", (16, 16), dwtileimag
 
 # print("Before conversion...")
 # print(vars(dwtiles))
-#
-# nrows = dwtiles.row_count
-# ncols = dwtiles.column_count
-#
+
+nrows = dwtiles.row_count
+ncols = dwtiles.column_count
+
+conversion_table = {}
+for index in range(0, len(dwtiles)):
+    x, y = divmod(index, nrows)
+    cvt_number = y * ncols + x
+    conversion_table[cvt_number] = dwtiles[index]
+
+print(conversion_table)
+
 # for index in range(0, len(dwtiles)):
 #     current_tile = dwtiles[index]
+#     image_region = dwtiles.tile_image(index)
 #     print("Before", current_tile)
+#     print(image_region)
 #     x, y = divmod(current_tile.number, nrows)
 #     cvt_number = y * ncols + x
 #     current_tile.number = cvt_number
@@ -53,7 +63,7 @@ for index in range(0, len(dwtiles)):
     #Also, tmxlib cheerfully loads tiles of transparent pixels as the empty set, so we need to get rid of those
     if test_pixels.size != 0 and (256, (255, 0, 255)) not in colors:
         tileset_number_to_tile_pixels[index] = test_pixels
-    
+
 # #tmxlib loads the tileset image vertically (in column-major order), whereas Tiled reads it horizontally (in
 # #row-major order)
 # #So we have to convert between the two
@@ -167,7 +177,14 @@ while not map_array_iterator.finished:
     # print(current_tile)
     # cv2.imshow("Writing tile...", current_tile_image)
     # cv2.waitKey(0)
-    output_tile_layer[map_array_iterator.multi_index] = dwtiles[current_tile]
+    #Owing to the earlier problem regarding the way tmxlib reads tileset images vs. the way Tiled reads images,
+    #we have to send the map_array values through the conversion table in order to write a tmx file that
+    #Tiled can interpret correctly.
+    #This means that, technically, the tile written in the tmx file is NOT the matched one, but rather its 
+    #column-major to row-major counterpart. However, because Tiled apparently has no idea what the image properties
+    #of each tile are, it probably doesn't matter.
+    converted_tile = conversion_table[current_tile]
+    output_tile_layer[map_array_iterator.multi_index] = converted_tile
     map_array_iterator.iternext()
 
 output_map.save("dragonwarriormap.tmx")
